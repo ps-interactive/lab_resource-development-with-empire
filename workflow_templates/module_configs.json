@@ -1,0 +1,55 @@
+{
+  "listener_configs": {
+    "http_standard": {
+      "name": "secdef_http",
+      "template": "http",
+      "options": {
+        "Host": "http://127.0.0.1:8080",
+        "Port": 8080,
+        "DefaultDelay": 5,
+        "DefaultJitter": 0.0,
+        "DefaultProfile": "/admin/get.php,/news.php,/login/process.php|Mozilla/5.0"
+      }
+    },
+    "http_evasive": {
+      "name": "secdef_evasive",
+      "template": "http",
+      "options": {
+        "Host": "http://127.0.0.1:9090",
+        "Port": 9090,
+        "DefaultDelay": 30,
+        "DefaultJitter": 0.5,
+        "DefaultProfile": "/api/v1/health,/static/main.js,/favicon.ico|Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+      }
+    }
+  },
+  "stager_configs": {
+    "powershell_basic": {
+      "template": "windows_launcher_bat",
+      "options": {
+        "Language": "powershell",
+        "Listener": "secdef_http"
+      }
+    },
+    "powershell_obfuscated": {
+      "template": "windows_launcher_bat",
+      "options": {
+        "Language": "powershell",
+        "Listener": "secdef_evasive",
+        "Obfuscate": true,
+        "ObfuscateCommand": "Token\\All\\1"
+      }
+    }
+  },
+  "module_sequences": {
+    "initial_recon": [
+      "powershell_situational_awareness_host_winenum",
+      "powershell_situational_awareness_host_antivirusproduct",
+      "powershell_situational_awareness_network_arpscan"
+    ],
+    "credential_access": [
+      "powershell_credentials_mimikatz_logonpasswords",
+      "powershell_credentials_mimikatz_sam"
+    ]
+  }
+}
