@@ -32,7 +32,7 @@ echo "-------------------------------------------" | tee -a "$REPORT_FILE"
 SUSPICIOUS_STRINGS=("powershell" "bypass" "hidden" "IEX" "Invoke-Expression" "DownloadString" "WebClient" "FromBase64String" "EncodedCommand" "-enc" "-noP" "-sta" "-w 1" "NonInteractive")
 FOUND_COUNT=0
 for str in "${SUSPICIOUS_STRINGS[@]}"; do
-    COUNT=$(grep -oi "$str" "$STAGER_FILE" 2>/dev/null | wc -l)
+    COUNT=$(grep -oi -F "$str" "$STAGER_FILE" 2>/dev/null | wc -l)
     if [ "$COUNT" -gt 0 ]; then
         echo "    [!] Found '$str' ($COUNT occurrence(s))" | tee -a "$REPORT_FILE"
         ((FOUND_COUNT++))
@@ -43,7 +43,7 @@ echo "" | tee -a "$REPORT_FILE"
 
 # Entropy analysis
 echo "[*] Entropy Analysis:" | tee -a "$REPORT_FILE"
-B64_CHARS=$(grep -oP '[A-Za-z0-9+/=]{40,}' "$STAGER_FILE" 2>/dev/null | wc -l)
+B64_CHARS=$(grep -c '[A-Za-z0-9+/=]\{40,\}' "$STAGER_FILE" 2>/dev/null)
 echo "    Base64-like strings (40+ chars): $B64_CHARS" | tee -a "$REPORT_FILE"
 if [ "$B64_CHARS" -gt 0 ]; then
     echo "    [!] High-entropy content detected - likely encoded payload" | tee -a "$REPORT_FILE"
